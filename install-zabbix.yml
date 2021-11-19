@@ -1,0 +1,132 @@
+-- 
+# Enable repo zabbix
+- name: Copy zabbix repo
+  copy:
+    src: /path-file/zabbix.repo
+    dest: /etc/yum.repos.d
+    mode: 0644
+    
+# Copy key
+- name: copy key
+  copy:
+    src: /path-file/RPM-GPG-KEY-ZABBIX-A14FE591
+    dest: /etc/pki/rpm-gpg/
+
+# Install httpd
+- name: install httpd
+  yum:
+    name: httpd
+    state: present
+    enable: yes
+  when_inventory_hostnames:
+    - zabbix-server
+      
+# Install mariadb server
+- name: install mariadb-server
+  yum:
+    name: mariadb-server
+    state: present
+    enable: yes
+  when_inventory_hostnames:
+    - zabbix-server
+
+# Install mariadb client
+- name: install mariadb
+  yum:
+    name: mariadb
+    state: present
+    enable: yes
+  when_inventory_hostnames:
+    - zabbix-server
+
+# Install zabbix-server-mysql
+- name: install zabbix-server-mysql
+  yum:
+    name: zabbix-server-mysql
+    state: present
+    enable: yes
+  when_inventory_hostnames:
+    - zabbix-server
+    
+# Install zabbix-web-mysql
+- name: install zabbix-web-mysql
+  yum:
+    name: zabbix-web-mysql
+    state: present
+    enable: yes
+  when_inventory_hostnames:
+    - zabbix-server
+    
+# Install zabbix-apache-conf
+- name: install zabbix-apache-conf
+  yum:
+    name: zabbix-apache-conf
+    state: present
+    enable: yes
+  when_inventory_hostnames:
+    - zabbix-server
+  
+# Install zabbix-agent
+- name: install zabbix-agent
+  yum:
+    name: zabbix-agent
+    state: present
+    enable: yes    
+
+# Create database
+- name: create zabbix database
+  mysql_db:
+    name: zabbixdb
+    state: present
+  notify: init zabbix db
+  when_inventory_hostnames:
+    - zabbix-server
+   
+# Create user
+- name: create zabbix user
+  mysql_user:
+    name: zabbix
+    host: localhost
+    password: "{{dbpassword}}"
+    priv: 'zabbix.*:ALL'
+    state: present
+  when_inventory_hostnames:
+    - zabbix-server
+    
+### Verificar ansible role (mysql_secure_installation) para configurar un mysql securizado.
+
+# Config setbool
+- name: Set httpd_can_connect_zabbix flag on and keep it persistent across reboots
+  ansible.posix.seboolean:
+    name:  httpd_can_connect_zabbix
+    state: yes
+    persistent: yes
+      
+- name: Set httpd_can_network_connect_db flag on and keep it persistent across reboots
+  ansible.posix.seboolean:
+    name: httpd_can_network_connect_db
+    state: yes
+    persistent: yes
+    
+# Restart httpd service
+- name: Restart httpd service
+  service: 
+    name: httpd
+    state: restarted
+    enabled: yes
+  
+# Start service zabbix-agent y zabbix-server
+- name: start servicio zabbix-agent y zabbix-server
+  service:
+    namme: "{{item}}"
+  loop: 
+    - zabbix-agent
+    - zabbix-server
+  
+# Configuration service zabbix
+- name: config zabbix-server
+  template:
+    src: zabbix_server.conf.j2
+    dest:/etc/zabbix/zabbix-server.conf
+  notify: restart zabbix server
+  
