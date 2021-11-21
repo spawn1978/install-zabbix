@@ -5,7 +5,8 @@ if [ "$enforceStatus" != "Permissive" ]; then
 setenforce 0
 fi
 #Install the repository configuration package
-rpm -Uvh https://repo.zabbix.com/zabbix/4.0/rhel/7/x86_64/zabbix-release-4.0-2.el7.noarch.rpm
+#rpm -Uvh https://repo.zabbix.com/zabbix/4.0/rhel/7/x86_64/zabbix-release-4.0-2.el7.noarch.rpm
+rpm -Uvh https://repo.zabbix.com/zabbix/5.0/rhel/7/x86_64/zabbix-release-5.0-1.el7.noarch.rpm
 yum clean all
 #Install Zabbix server, frontend, agent, database, httpd
 yum install zabbix-server-mysql -y
@@ -27,7 +28,7 @@ zcat /usr/share/doc/zabbix-server-mysql*/create.sql.gz | mysql zabbix
 #Configure the database for Zabbix server
 echo DBPassword=zabbix >> /etc/zabbix/zabbix_server.conf
 #Configure frontend 
-sed -i 's:# php_value date.timezone.*:php_value date.timezone Europe\/Minsk:g' /etc/httpd/conf.d/zabbix.conf;
+sed -i 's:# php_value date.timezone.*:php_value date.timezone America\/Argentina\/Buenos_Aires:g' /etc/httpd/conf.d/zabbix.conf;
 #Start zabbix server processes start at system boot
 systemctl restart zabbix-server
 systemctl enable zabbix-server
