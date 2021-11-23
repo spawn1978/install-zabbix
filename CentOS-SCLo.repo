@@ -17,3 +17,19 @@ baseurl=http://buildlogs.centos.org/centos/$releasever/sclo/$basearch/SCLGROUP/
 gpgcheck=1
 enabled=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-SCLo
+
+[centos-sclo-SCLGROUP-SCLO]
+name=CentOS-$releasever - SCLo SCLGROUP SCLO
+baseurl=http://buildlogs.centos.org/centos/$releasever/sclo/$basearch/sclo/
+gpgcheck=1
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-SCLo
+
+
+[centos-sclo-SCLGROUP-RH]
+name=CentOS-$releasever - SCLo SCLGROUP RH
+baseurl=http://buildlogs.centos.org/centos/$releasever/sclo/$basearch/rh/
+gpgcheck=1
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-SCLo
+
